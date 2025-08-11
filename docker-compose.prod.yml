@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: kc_user
+      POSTGRES_PASSWORD: kc_pass
+    volumes:
+      - kc-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kc_user -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - start
+      - --hostname=api.greijal.app
+      - --hostname-strict=true
+      - --proxy-headers=xforwarded
+      - --http-enabled=true
+      - --http-port=8080
+      - --http-relative-path=/kc
+      - --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: kc_user
+      KC_DB_PASSWORD: kc_pass
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import:ro
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  resource-server:
+    build:
+      context: .
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:1.27-alpine
+    depends_on:
+      - keycloak
+      - resource-server
+    ports:
+      - "443:443"
+      # - "80:80"   # opcional, só se você usar HTTP-01 do Let's Encrypt
+    volumes:
+      - ./nginx/gateway.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro   # certificados públicos do host
+      - ./static:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  kc-pg:

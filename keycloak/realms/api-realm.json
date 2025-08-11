@@ -1,0 +1,26 @@
+{
+  "realm": "api",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "api-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "clientAuthenticatorType": "client-jwt",
+      "attributes": {
+        "jwks.url": "https://localhost:8443/.well-known/api-client.jwks.json"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN"
+      }
+    ]
+  }
+}
