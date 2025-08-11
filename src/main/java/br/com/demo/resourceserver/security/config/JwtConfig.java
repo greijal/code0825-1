@@ -1,10 +1,12 @@
-package br.com.demo.resourceserver.security;
+package br.com.demo.resourceserver.security.config;
 
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import br.com.demo.resourceserver.security.AudienceValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

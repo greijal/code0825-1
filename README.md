@@ -50,7 +50,7 @@ resource-server/
   jwks/jwks.json         # fonte do arquivo acima
   keycloak/realms/api-realm.json
   src/main/java/...      # Spring API
-  src/main/resources/application.yml
+  src/main/resources/application.properties
   Makefile
   README.md
 ```

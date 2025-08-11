@@ -1,4 +1,4 @@
-package br.com.demo.resourceserver.config;
+package br.com.demo.resourceserver.security.config;
 
 import br.com.demo.resourceserver.security.KeycloakAuthoritiesConverter;
 import java.time.Duration;
@@ -12,6 +12,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -47,14 +49,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // API stateless
+                .csrf(AbstractHttpConfigurer::disable) // API stateless
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers
-                        .xssProtection(x -> x.disable()) // deprecated; mantido por compatibilidade; CSP já cobre XSS
+                        .xssProtection(HeadersConfigurer.XXssConfig::disable) // deprecated; mantido por compatibilidade; CSP já cobre XSS
                         .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY))
                         .referrerPolicy(rp -> rp.policy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
-                        .frameOptions(fo -> fo.deny())
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                         .httpStrictTransportSecurity(hsts -> {
                             if (requireSsl) {
                                 hsts.includeSubDomains(true).preload(true).maxAgeInSeconds(HSTS_MAX_AGE_SECONDS);
@@ -78,9 +80,9 @@ public class SecurityConfig {
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(authoritiesConverter)))
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
                 )
-                .httpBasic(basic -> basic.disable())
-                .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable());
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
