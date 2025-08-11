@@ -9,6 +9,12 @@ app:
   security:
     expected-issuer: ${EXPECTED_ISSUER}
     expected-audience: ${EXPECTED_AUDIENCE:resource-api}
+    require-ssl: ${REQUIRE_SSL:false}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+    jwt:
+      signature-alg: ${JWT_SIGNATURE_ALG:RS256}
+      allowed-typ: ${JWT_ALLOWED_TYP:at+jwt,Bearer,JWT}
 management:
   endpoints:
     web:
