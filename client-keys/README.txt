@@ -1,1 +1,0 @@
-Coloque/gerencie aqui suas chaves do CLIENTE (private.pem/public.pem).
