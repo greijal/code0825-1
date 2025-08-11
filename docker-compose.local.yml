@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: kc_user
+      POSTGRES_PASSWORD: kc_pass
+    volumes:
+      - kc-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kc_user -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - start
+      - --hostname=localhost
+      - --hostname-strict=false
+      - --http-enabled=true
+      - --http-port=8080
+      - --http-relative-path=/kc
+      - --proxy-headers=xforwarded
+      - --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: kc_user
+      KC_DB_PASSWORD: kc_pass
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realms:/opt/keycloak/data/import:ro
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  api:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: ""
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:1.27-alpine
+    depends_on:
+      - keycloak
+      - api
+    ports:
+      - "8443:443"
+    volumes:
+      - ./nginx/gateway.local.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/out:/etc/nginx/tls:ro
+      - ./static:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+volumes:
+  kc-pg:

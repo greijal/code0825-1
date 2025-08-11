@@ -1,0 +1,10 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://localhost/kc/realms/api
+
+app:
+  security:
+    expected-audience: resource-api

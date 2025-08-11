@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "Ultra Simple S2S \u2014 Local",
+    "_postman_id": "c7f9a8cf-aaaa-bbbb-cccc-1234567890ab",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:8443/api/healthz",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "8443",
+          "path": [
+            "api",
+            "healthz"
+          ]
+        }
+      }
+    },
+    {
+      "name": "OIDC discovery",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:8443/kc/realms/api/.well-known/openid-configuration",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "8443",
+          "path": [
+            "kc",
+            "realms",
+            "api",
+            ".well-known",
+            "openid-configuration"
+          ]
+        }
+      }
+    }
+  ]
+}
