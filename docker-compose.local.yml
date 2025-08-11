@@ -1,4 +1,3 @@
-
 services:
   postgres:
     image: postgres:16
@@ -6,13 +5,13 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: kc_user
       POSTGRES_PASSWORD: kc_pass
+    volumes:
+      - kc-pg:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U kc_user -d keycloak"]
       interval: 10s
       timeout: 5s
       retries: 10
-    volumes:
-      - kc-pg:/var/lib/postgresql/data
     restart: unless-stopped
 
   keycloak:
@@ -38,14 +37,14 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
-      - ././keycloak/realms:/opt/keycloak/data/import:ro
+      - ./resource-server/keycloak/realms:/opt/keycloak/data/import:ro
     expose:
       - "8080"
     restart: unless-stopped
 
   resource-server:
     build:
-      context: .
+      context: ./resource-server
     environment:
       SPRING_PROFILES_ACTIVE: local
     expose:
@@ -60,9 +59,10 @@ services:
     ports:
       - "8443:443"
     volumes:
-      - ././nginx/gateway.local.conf:/etc/./nginx/nginx.conf:ro
-      - ././certs/out:/etc/./nginx/tls:ro
-      - ./static:/usr/share/./nginx/html:ro
+      - ./nginx/gateway.local.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/includes:/etc/nginx/includes:ro
+      - ./resource-server/static:/usr/share/nginx/html:ro
+      - ./certs/out:/etc/nginx/tls:ro
     restart: unless-stopped
 
 volumes:

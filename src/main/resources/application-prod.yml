@@ -1,0 +1,6 @@
+spring:
+  profiles: prod
+security:
+  oauth2:
+    resourceserver:
+      issuer-uri: https://api.greijal.app/kc/realms/api

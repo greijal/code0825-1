@@ -8,16 +8,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/public/**", "/actuator/health").permitAll()
-                .requestMatchers("/api/healthz").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
-        return http.build();
-    }
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable());
+    http.authorizeHttpRequests(auth -> auth
+        .requestMatchers("/public/**","/actuator/health").permitAll()
+        .requestMatchers("/api/**","/admin/**").authenticated()
+        .anyRequest().permitAll());
+    http.oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));
+    return http.build();
+  }
 }

@@ -6,21 +6,14 @@
       "clientId": "api-client",
       "enabled": true,
       "protocol": "openid-connect",
-      "publicClient": false,
       "serviceAccountsEnabled": true,
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
+      "publicClient": false,
       "clientAuthenticatorType": "client-jwt",
       "attributes": {
-        "jwks.url": "https://localhost:8443/.well-known/api-client.jwks.json"
+        "tls.client.certificate.bound.access.tokens": "false"
       }
     }
-  ],
-  "roles": {
-    "realm": [
-      {
-        "name": "ADMIN"
-      }
-    ]
-  }
+  ]
 }

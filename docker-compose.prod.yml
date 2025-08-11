@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:16
@@ -14,7 +12,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    restart: always
+    restart: unless-stopped
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -30,6 +28,7 @@ services:
       - --http-port=8080
       - --http-relative-path=/kc
       - --import-realm
+      - --optimized
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
@@ -38,14 +37,14 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import:ro
+      - ./resource-server/keycloak/realms:/opt/keycloak/data/import:ro
     expose:
       - "8080"
     restart: unless-stopped
 
   resource-server:
     build:
-      context: .
+      context: ./resource-server
     environment:
       SPRING_PROFILES_ACTIVE: prod
     expose:
@@ -59,11 +58,11 @@ services:
       - resource-server
     ports:
       - "443:443"
-      # - "80:80"   # opcional, só se você usar HTTP-01 do Let's Encrypt
     volumes:
       - ./nginx/gateway.prod.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro   # certificados públicos do host
-      - ./static:/usr/share/nginx/html:ro
+      - ./nginx/includes:/etc/nginx/includes:ro
+      - ./resource-server/static:/usr/share/nginx/html:ro
+      - ./certs/out:/etc/nginx/tls:ro
     restart: unless-stopped
 
 volumes:

@@ -9,11 +9,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 @Configuration
 public class JwtConfig {
 
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private String issuer;
+  @Value("${security.oauth2.resourceserver.issuer-uri}")
+  private String issuer;
 
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return JwtDecoders.fromIssuerLocation(issuer);
-    }
+  @Bean
+  JwtDecoder jwtDecoder() {
+    return JwtDecoders.fromIssuerLocation(issuer);
+  }
 }
