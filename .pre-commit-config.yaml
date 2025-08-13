@@ -10,6 +10,6 @@ repos:
       - id: run-tests
         name: Run Maven tests
         language: system
-        entry: mvn -B -q -DskipTests=false test;
+        entry: mvn  test;
         pass_filenames: false
 
