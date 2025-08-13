@@ -1,0 +1,7 @@
+repos:
+  - repo: local
+    hooks:
+      -   id: checkstyle
+          name: check checkstyle
+          language: system
+          entry: java -jar checkstyle-11.0.0-all.jar -c checkstyle.xml /src

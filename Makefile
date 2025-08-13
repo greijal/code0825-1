@@ -1,7 +1,22 @@
-# Usa o Maven Wrapper se existir; caso contrário, usa Maven via Docker
+.PHONY: up-local down-local logs-local health-local oidc-local certs reload-nginx-local up-prod down-prod logs-prod deps
+
+PYTHON ?= python3
+PIP ?= $(PYTHON) -m pip
+PRE_COMMIT_PKG ?= pre-commit
+CHECKSTYLE_VERSION := 11.0.0
+CHECKSTYLE_NAME := checkstyle-$(CHECKSTYLE_VERSION)
+CHECKSTYLE_JAR := $(CHECKSTYLE_NAME)-all.jar
+CHECKSTYLE_URL := https://github.com/checkstyle/checkstyle/releases/download/$(CHECKSTYLE_NAME)/$(CHECKSTYLE_JAR)
 MVN := $(shell test -x ./mvnw && echo "./mvnw" || echo "docker run --rm -v $$PWD:/app -v $$HOME/.m2:/root/.m2 -w /app maven:3.9.9-eclipse-temurin-21 mvn")
 
-.PHONY: up-local down-local logs-local health-local oidc-local certs reload-nginx-local up-prod down-prod logs-prod
+deps:
+	$(PIP) install $(PRE_COMMIT_PKG)
+	@if [ ! -f "$(CHECKSTYLE_JAR)" ]; then \
+		echo "Baixando $(CHECKSTYLE_JAR) ..."; \
+		curl -fL -o "$(CHECKSTYLE_JAR)" "$(CHECKSTYLE_URL)"; \
+	else \
+		echo "$(CHECKSTYLE_JAR) já existe. Pulando download."; \
+	fi
 
 certs:
 	bash scripts/issue_cert.sh && bash scripts/fix_cert_perms.sh
