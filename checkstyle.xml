@@ -60,6 +60,7 @@
     </module>
 
     <module name="TreeWalker">
+        <module name="FinalParameters"/>
         <module name="OuterTypeFilename"/>
         <module name="MatchXpath">
             <property name="id" value="singleLineCommentStartWithSpace"/>
