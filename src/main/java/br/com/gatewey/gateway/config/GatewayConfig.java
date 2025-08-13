@@ -1,4 +1,4 @@
-package br.com.demo.resourceserver.gateway.config;
+package br.com.gatewey.gateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package br.com.demo.resourceserver;
+package br.com.gatewey;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

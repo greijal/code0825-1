@@ -1,4 +1,4 @@
-package br.com.demo.resourceserver.security;
+package br.com.gatewey.security;
 
 import java.util.Arrays;
 import java.util.Collection;

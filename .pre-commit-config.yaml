@@ -4,7 +4,11 @@ repos:
       - id: checkstyle
         name: Checkstyle
         language: system
-        entry: java -jar ./tools/checkstyle-10.18.1-all.jar -c ./checkstyle.xml
+        entry: java -Dorg.checkstyle.google.severity=error -jar ./checkstyle-11.0.0-all.jar -c ./checkstyle.xml -f plain
         types: [java]
         pass_filenames: true
-        # opcional: args: ["-f", "plain"]
+      - id: run-tests
+        name: Run Maven tests
+        language: system
+        entry: mvn -B -q -DskipTests=false test
+        pass_filenames: false

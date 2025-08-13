@@ -1,4 +1,4 @@
-package br.com.demo.resourceserver.security.config;
+package br.com.gatewey.security.config;
 
 import java.time.Duration;
 import java.util.Collection;
