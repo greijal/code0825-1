@@ -4,6 +4,7 @@
 *.crt
 *.p12
 *.jks
+*.jar
 certs/
 */certs/
 /target/
