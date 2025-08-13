@@ -1,7 +1,10 @@
 repos:
   - repo: local
     hooks:
-      -   id: checkstyle
-          name: check checkstyle
-          language: system
-          entry: java -jar checkstyle-11.0.0-all.jar -c checkstyle.xml
+      - id: checkstyle
+        name: Checkstyle
+        language: system
+        entry: java -jar ./tools/checkstyle-10.18.1-all.jar -c ./checkstyle.xml
+        types: [java]
+        pass_filenames: true
+        # opcional: args: ["-f", "plain"]
