@@ -78,8 +78,8 @@ public class JwtConfig {
           .filter(s -> s != null && !s.isBlank())
           .map(String::toLowerCase)
           .collect(Collectors.toUnmodifiableSet());
-      Predicate<Collection<String>> audiencePredicate = aud -> aud != null && !aud.isEmpty() &&
-          aud.stream().anyMatch(expectedAudienceNormalized::contains);
+      Predicate<Collection<String>> audiencePredicate = aud -> aud != null && !aud.isEmpty()
+          && aud.stream().anyMatch(expectedAudienceNormalized::contains);
       this.validator = new JwtClaimValidator<>(JwtClaimNames.AUD, audiencePredicate);
 
     }
