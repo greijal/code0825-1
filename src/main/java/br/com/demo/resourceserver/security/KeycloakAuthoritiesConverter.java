@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public class KeycloakAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
   @Override
-  public Collection<GrantedAuthority> convert(Jwt jwt) {
+  public Collection<GrantedAuthority> convert(final Jwt jwt) {
     Set<String> authorities = new HashSet<>();
 
     Object scp = jwt.getClaims().get("scp");
@@ -54,7 +54,7 @@ public class KeycloakAuthoritiesConverter implements Converter<Jwt, Collection<G
         .collect(Collectors.toUnmodifiableSet());
   }
 
-  private String normalize(String role) {
+  private String normalize(final String role) {
     return role.trim().replace('-', '_').toUpperCase(Locale.ROOT);
   }
 }

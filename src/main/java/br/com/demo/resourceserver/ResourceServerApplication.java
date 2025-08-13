@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootApplication
 @EnableWebMvc
 public class ResourceServerApplication {
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     SpringApplication.run(ResourceServerApplication.class, args);
   }
 }
