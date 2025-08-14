@@ -1,4 +1,4 @@
-package br.com.gatewey.security;
+package br.com.gatewey.security.config;
 
 import java.util.Arrays;
 import java.util.Collection;
