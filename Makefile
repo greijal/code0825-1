@@ -41,9 +41,6 @@ reload-nginx-local:
 health-local:
 	curl -sk https://localhost:8443/api/actuator/health | jq . || { echo "Falha no health-check"; exit 1; }
 
-oidc-local:
-	curl -sk https://localhost:8443/kc/realms/api/.well-known/openid-configuration | jq .issuer || { echo "Falha ao obter OIDC (verifique se jq e curl estão instalados)"; true; }
-
 up-prod:
 	$(MVN) -B -DskipTests clean package spring-boot:repackage
 	JAR=$$(ls target/*.jar | grep -v original | grep -v plain | head -n 1); \

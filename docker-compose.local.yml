@@ -41,7 +41,7 @@ services:
       - "8080"
     restart: unless-stopped
 
-  api:
+  gateway:
     build: .
     env_file:
       - .env
@@ -54,7 +54,7 @@ services:
       - "8080"
     restart: unless-stopped
 
-  gateway:
+  nginx:
     image: nginx:1.27-alpine
     depends_on:
       - keycloak
@@ -64,7 +64,6 @@ services:
     volumes:
       - ./nginx/gateway.local.conf:/etc/nginx/nginx.conf:ro
       - ./certs/out:/etc/nginx/tls:ro
-      - ./static:/usr/share/nginx/html:ro
     restart: unless-stopped
 
 volumes:
