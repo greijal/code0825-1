@@ -22,6 +22,8 @@ services:
     command:
       - start
       - --hostname=api.greijal.app
+      - --http-enabled=true
+      - --http-port=8080
       - --http-relative-path=/kc
       - --hostname-strict=true
       - --proxy-headers=xforwarded
@@ -36,8 +38,7 @@ services:
     volumes:
       - ./keycloak/realms:/opt/keycloak/data/import:ro
     expose:
-      - "8443"
-      - "443"
+      - "8080"
     restart: unless-stopped
 
   api_gateway:
@@ -45,13 +46,12 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:8443/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
       interval: 30s
       timeout: 5s
       retries: 10
     expose:
-      - "8443"
-      - "443"
+      - "8080"
     restart: unless-stopped
 
   nginx:
