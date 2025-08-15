@@ -1,16 +1,14 @@
 package br.com.gatewey.security.config;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -23,37 +21,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  private final List<PublicPath> publicPaths;
+  private final SecurityRulesProperties rulesProps;
 
-  public SecurityConfig(final List<PublicPath> publicPaths) {
-    this.publicPaths = publicPaths;
-  }
-
-  private static void addPrivateRequestRule(final HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        auth ->
-            auth.requestMatchers("/api/**")
-                .authenticated()
-                .anyRequest()
-                .denyAll());
-  }
-
-  private static void addPublicRequestRule(final List<PublicPath> publicPaths,
-                                           final HttpSecurity http) throws Exception {
-
-    http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**")
-        .permitAll());
-
-    publicPaths.forEach(p -> {
-      Arrays.stream(p.methods).forEach(m -> {
-        try {
-          http.authorizeHttpRequests(auth -> auth.requestMatchers(m, p.path));
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      });
-    });
-
+  public SecurityConfig(final SecurityRulesProperties rulesProps) {
+    this.rulesProps = rulesProps;
   }
 
   @Bean
@@ -73,8 +44,30 @@ public class SecurityConfig {
                     jwtAuthenticationConverter(authoritiesConverter)))
                 .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()));
 
-    addPublicRequestRule(publicPaths, http);
-    addPrivateRequestRule(http);
+    for (SecurityRulesProperties.Rule rule : rulesProps.getRules()) {
+      http.authorizeHttpRequests(reg -> {
+        var registry = (rule.getMethods() == null || rule.getMethods().isEmpty())
+            ? List.of(reg.requestMatchers(rule.getPattern()))
+            : rule.getMethods().stream()
+            .map(method -> reg.requestMatchers(method, rule.getPattern()))
+            .toList();
+
+        String decision = rule.getDecision() == null ? "" : rule.getDecision().trim().toUpperCase();
+        switch (decision) {
+          case "PERMIT_ALL" ->
+              registry.forEach(AuthorizeHttpRequestsConfigurer.AuthorizedUrl::permitAll);
+          case "AUTHENTICATED" ->
+              registry.forEach(AuthorizeHttpRequestsConfigurer.AuthorizedUrl::authenticated);
+          case "HAS_ANY_ROLE" ->
+              registry.forEach(r -> r.hasAnyRole(rule.getAuthorities().toArray(String[]::new)));
+          case "HAS_ANY_AUTHORITY" -> registry.forEach(
+              r -> r.hasAnyAuthority(rule.getAuthorities().toArray(String[]::new)));
+          case "DENY_ALL" ->
+              registry.forEach(AuthorizeHttpRequestsConfigurer.AuthorizedUrl::denyAll);
+          default -> registry.forEach(AuthorizeHttpRequestsConfigurer.AuthorizedUrl::denyAll);
+        }
+      });
+    }
 
     return http.build();
   }
@@ -91,9 +84,5 @@ public class SecurityConfig {
     var converter = new JwtAuthenticationConverter();
     converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
     return converter;
-  }
-
-  @ConfigurationPropertiesScan("app.security.public")
-  public record PublicPath(String path, HttpMethod[] methods) {
   }
 }

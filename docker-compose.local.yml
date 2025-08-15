@@ -8,7 +8,7 @@ services:
     volumes:
       - kc-pg:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kc_user -d keycloak"]
+      test: [ "CMD-SHELL", "pg_isready -U kc_user -d keycloak" ]
       interval: 10s
       timeout: 5s
       retries: 10
