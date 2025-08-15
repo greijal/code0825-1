@@ -8,3 +8,4 @@
 certs/
 */certs/
 /target/
+/internal-ca/*
