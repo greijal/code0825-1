@@ -1,0 +1,23 @@
+{
+  "realm": "api",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "resource-api",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "admin role"
+      }
+    ]
+  }
+}

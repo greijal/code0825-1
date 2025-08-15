@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Usage: certs.sh <KEYSTORE_FILE> <KEYSTORE_PASSWORD> <KEY_ALIAS>
+KEYSTORE_FILE=${1:-}
+KEYSTORE_PASSWORD=${2:-}
+KEY_ALIAS=${3:-}
+
+if [[ -z "$KEYSTORE_FILE" || -z "$KEYSTORE_PASSWORD" || -z "$KEY_ALIAS" ]]; then
+  echo "[certs] Uso: $(basename "$0") <KEYSTORE_FILE> <KEYSTORE_PASSWORD> <KEY_ALIAS>" >&2
+  exit 1
+fi
+
+# Ensure target directory exists
+mkdir -p "$(dirname "$KEYSTORE_FILE")"
+
+if command -v keytool >/dev/null 2>&1; then
+  echo "[certs] Usando keytool local"
+  keytool -genkeypair \
+    -storepass "$KEYSTORE_PASSWORD" \
+    -keypass "$KEYSTORE_PASSWORD" \
+    -storetype PKCS12 \
+    -keyalg RSA \
+    -keysize 2048 \
+    -dname "CN=server" \
+    -alias "$KEY_ALIAS" \
+    -ext "SAN:c=DNS:localhost,IP:127.0.0.1" \
+    -keystore "$KEYSTORE_FILE"
+else
+  echo "[certs] keytool não encontrado, usando container JDK"
+  docker run --rm -v "$(pwd)":/work -w /work eclipse-temurin:21-jdk \
+    keytool -genkeypair \
+      -storepass "$KEYSTORE_PASSWORD" \
+      -keypass "$KEYSTORE_PASSWORD" \
+      -storetype PKCS12 \
+      -keyalg RSA \
+      -keysize 2048 \
+      -dname "CN=server" \
+      -alias "$KEY_ALIAS" \
+      -ext "SAN:c=DNS:localhost,IP:127.0.0.1" \
+      -keystore "$KEYSTORE_FILE"
+fi
+
+echo "[certs] Keystore gerado em $KEYSTORE_FILE"

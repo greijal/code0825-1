@@ -21,14 +21,15 @@ services:
         condition: service_healthy
     command:
       - start
-      - --hostname=api.greijal.app
+      - --http-enabled=true
+      - --http-port=8080
       - --https-port=8443
-      - --https-certificate-file=/etc/keycloak/tls/keycloak.crt
-      - --https-certificate-key-file=/etc/keycloak/tls/keycloak.key
-      - --http-enabled=false
+      - --https-key-store-file=/opt/keycloak/conf/server.keystore
+      - --https-key-store-password=$KEYSTORE_PASSWORD
+      - --https-key-store-type=PKCS12
       - --http-relative-path=/kc
+      - --hostname=http://localhost/kc
       - --hostname-strict=true
-      - --proxy-headers=xforwarded
       - --import-realm
     environment:
       KC_DB: postgres
@@ -39,8 +40,9 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
     volumes:
       - ./keycloak/realms:/opt/keycloak/data/import:ro
-      - ./internal-ca/keycloak:/etc/keycloak/tls:ro
+      - ./keycloak/conf:/opt/keycloak/conf:ro
     expose:
+      - "8080"
       - "8443"
     restart: unless-stopped
 
@@ -49,15 +51,13 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "wget --https-only --ca-certificate=/etc/ssl/internal/internal-ca.crt -qO- https://localhost:8443/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
+    
       interval: 30s
       timeout: 5s
       retries: 10
     expose:
-      - "8443"
-    volumes:
-      - ./internal-ca/api-gateway:/etc/tls:ro
-      - ./internal-ca/internal-ca.crt:/etc/ssl/internal/internal-ca.crt:ro
+      - "8080"
     restart: unless-stopped
 
   nginx:
@@ -67,10 +67,7 @@ services:
       - api_gateway
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - ./certs/le:/etc/nginx/tls:ro
-      - ./internal-ca/internal-ca.crt:/etc/nginx/upstream-ca/internal-ca.crt:ro
       - ./nginx/gateway.conf:/etc/nginx/nginx.conf:ro
     restart: unless-stopped
 

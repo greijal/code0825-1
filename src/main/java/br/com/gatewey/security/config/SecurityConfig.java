@@ -38,8 +38,7 @@ public class SecurityConfig {
     http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
-        .logout(AbstractHttpConfigurer::disable)
-        .requiresChannel(channel -> channel.anyRequest().requiresSecure());
+        .logout(AbstractHttpConfigurer::disable);
 
     http.oauth2ResourceServer(
         oauth2 ->
