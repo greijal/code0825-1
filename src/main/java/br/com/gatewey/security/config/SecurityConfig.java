@@ -22,7 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
 @ConfigurationPropertiesScan
-@EnableWebFluxSecurity
 public class SecurityConfig {
 
   private final SecurityRulesProperties rulesProps;

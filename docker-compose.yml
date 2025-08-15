@@ -21,11 +21,9 @@ services:
         condition: service_healthy
     command:
       - start
-      - --hostname=localhost
-      - --hostname-strict=false
-      - --http-enabled=true
-      - --http-port=8080
+      - --hostname=api.greijal.app
       - --http-relative-path=/kc
+      - --hostname-strict=true
       - --proxy-headers=xforwarded
       - --import-realm
     environment:
@@ -38,31 +36,33 @@ services:
     volumes:
       - ./keycloak/realms:/opt/keycloak/data/import:ro
     expose:
-      - "8080"
+      - "8443"
+      - "443"
     restart: unless-stopped
 
-  gateway:
+  api_gateway:
     build: .
     env_file:
       - .env
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8443/api/actuator/health | grep -q '\"status\":\"UP\"'" ]
       interval: 30s
       timeout: 5s
       retries: 10
     expose:
-      - "8080"
+      - "8443"
+      - "443"
     restart: unless-stopped
 
   nginx:
     image: nginx:1.27-alpine
     depends_on:
       - keycloak
-      - api
+      - api_gateway
     ports:
-      - "8443:443"
+      - "443:443"
     volumes:
-      - ./nginx/gateway.local.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/gateway.conf:/etc/nginx/nginx.conf:ro
       - ./certs/out:/etc/nginx/tls:ro
     restart: unless-stopped
 
