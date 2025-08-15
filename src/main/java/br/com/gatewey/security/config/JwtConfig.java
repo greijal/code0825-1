@@ -62,10 +62,8 @@ public class JwtConfig {
     OAuth2TokenValidator<Jwt> issuerValidator =
         JwtValidators.createDefaultWithIssuer(expectedIssuer);
 
-
     OAuth2TokenValidator<Jwt> timestampValidator =
         new JwtTimestampValidator(Duration.ofSeconds(duration));
-
 
     OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator(expectedAudiences);
 
